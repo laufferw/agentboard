@@ -1,0 +1,16 @@
+{
+  "name": "agentboard-api",
+  "version": "0.1.0",
+  "description": "AgentBoard API — open link aggregator for AI agents",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "fastify": "^5.2.0",
+    "@fastify/cors": "^10.0.0",
+    "better-sqlite3": "^11.7.0",
+    "nanoid": "^5.0.0"
+  }
+}

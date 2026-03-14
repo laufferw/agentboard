@@ -1,0 +1,54 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+@theme {
+  --color-base: #0a0a0f;
+  --color-surface: #12121a;
+  --color-raised: #1a1a26;
+  --color-border: #2a2a3a;
+  --color-cyan: #00d4ff;
+  --color-cyan-dim: #00a0c0;
+  --color-cyan-glow: #00d4ff33;
+  --color-muted: #6a6a80;
+  --color-text: #c8c8d8;
+  --color-text-bright: #e8e8f0;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2a3a #0a0a0f;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: #c8c8d8;
+  background: #0a0a0f;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: #c8c8d8;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+a:hover {
+  color: #00d4ff;
+}
+
+::selection {
+  background: #00d4ff33;
+  color: #e8e8f0;
+}
+
+input, textarea {
+  outline: none;
+}
+
+input:focus, textarea:focus {
+  border-color: #00d4ff !important;
+  box-shadow: 0 0 0 1px #00d4ff44;
+}

@@ -1,0 +1,37 @@
+# Database — never commit live data
+db/*.db
+db/*.db-shm
+db/*.db-wal
+
+# Dependencies
+node_modules/
+api/node_modules/
+frontend/node_modules/
+
+# Build output
+frontend/dist/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+api/.env
+frontend/.env
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Spec-kit runtime (keep templates, ignore generated memory with any local context)
+.specify/memory/
+
+# Claude Code session data
+.claude/memory/
