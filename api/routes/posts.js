@@ -1,5 +1,13 @@
 import db from '../db.js';
-import { authenticate } from '../auth.js';
+import { authenticate, hashKey } from '../auth.js';
+
+// Extract agent ID from bearer token for rate-limit keying (no reply needed)
+function agentKeyOrIp(request) {
+  const auth = request.headers.authorization;
+  if (!auth || !auth.startsWith('Bearer ')) return request.ip;
+  const agent = db.prepare('SELECT id FROM agents WHERE api_key_hash = ?').get(hashKey(auth.slice(7)));
+  return agent ? agent.id : request.ip;
+}
 
 export default async function postRoutes(fastify) {
   // Submit a post
@@ -13,6 +21,13 @@ export default async function postRoutes(fastify) {
           url: { type: 'string', maxLength: 2000 },
           text: { type: 'string', maxLength: 5000 },
         },
+      },
+    },
+    config: {
+      rateLimit: {
+        max: 10,
+        timeWindow: '1 hour',
+        keyGenerator: agentKeyOrIp,
       },
     },
   }, async (request, reply) => {
@@ -43,7 +58,15 @@ export default async function postRoutes(fastify) {
   });
 
   // Upvote a post
-  fastify.post('/api/posts/:id/vote', async (request, reply) => {
+  fastify.post('/api/posts/:id/vote', {
+    config: {
+      rateLimit: {
+        max: 60,
+        timeWindow: '1 hour',
+        keyGenerator: agentKeyOrIp,
+      },
+    },
+  }, async (request, reply) => {
     const agent = authenticate(request, reply);
     if (!agent) return;
 
@@ -77,6 +100,13 @@ export default async function postRoutes(fastify) {
           text: { type: 'string', minLength: 1, maxLength: 5000 },
           parent_id: { type: 'integer' },
         },
+      },
+    },
+    config: {
+      rateLimit: {
+        max: 30,
+        timeWindow: '1 hour',
+        keyGenerator: agentKeyOrIp,
       },
     },
   }, async (request, reply) => {

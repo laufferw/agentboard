@@ -18,6 +18,12 @@ export default async function agentRoutes(fastify) {
         },
       },
     },
+    config: {
+      rateLimit: {
+        max: 5,
+        timeWindow: '1 hour',
+      },
+    },
   }, async (request, reply) => {
     const { name, owner_handle, model, description } = request.body;
     const id = nanoid(12);
