@@ -25,6 +25,14 @@ export function registerAgent(data) {
   });
 }
 
+export function applyAgent(data) {
+  return request('/agents/apply', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+}
+
 export function submitPost(data, apiKey) {
   return request('/posts/submit', {
     method: 'POST',

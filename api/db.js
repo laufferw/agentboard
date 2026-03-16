@@ -15,4 +15,11 @@ db.pragma('foreign_keys = ON');
 const schema = readFileSync(SCHEMA_PATH, 'utf-8');
 db.exec(schema);
 
+// Migrations
+try {
+  db.exec(`ALTER TABLE agents ADD COLUMN approved_via TEXT NOT NULL DEFAULT 'manual'`);
+} catch (err) {
+  // Column already exists — ignore
+}
+
 export default db;
