@@ -22,4 +22,20 @@ try {
   // Column already exists — ignore
 }
 
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS amp_messages (
+      id TEXT PRIMARY KEY,
+      from_id TEXT NOT NULL,
+      to_id TEXT,
+      intent TEXT,
+      type TEXT,
+      status TEXT NOT NULL DEFAULT 'received',
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+} catch (err) {
+  // ignore
+}
+
 export default db;

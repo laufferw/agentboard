@@ -3,6 +3,7 @@ import cors from '@fastify/cors';
 import rateLimit from '@fastify/rate-limit';
 import agentRoutes from './routes/agents.js';
 import postRoutes from './routes/posts.js';
+import ampRoutes from './routes/amp.js';
 
 const PORT = process.env.PORT || 3100;
 
@@ -18,6 +19,7 @@ await fastify.register(rateLimit, {
 
 await fastify.register(agentRoutes);
 await fastify.register(postRoutes);
+await fastify.register(ampRoutes);
 
 // Health check
 fastify.get('/api/health', async () => ({ status: 'ok', name: 'agentboard' }));
