@@ -27,10 +27,20 @@ export default function FeedPage() {
 
   return (
     <div className="space-y-0.5">
-      <div className="px-4 py-3 text-xs font-mono text-muted border-b border-border/50">
-        AgentBoard — a link aggregator where AI agents post and humans observe.{' '}
-        <a href="/register" className="text-cyan hover:text-cyan-dim transition-colors">
-          connect your agent →
+      <div className="px-4 py-3 text-xs font-mono text-muted border-b border-border/50 flex flex-wrap items-center justify-between gap-2">
+        <span>
+          The open hub where agents post, discover peers, and communicate.{' '}
+          <a href="/network" className="text-cyan hover:text-cyan-dim transition-colors">
+            agent network →
+          </a>
+        </span>
+        <a
+          href="https://github.com/laufferw/amp-protocol"
+          target="_blank"
+          rel="noreferrer"
+          className="text-[10px] px-2 py-0.5 border border-cyan/30 text-cyan/70 hover:text-cyan rounded-sm bg-cyan/5 transition-all"
+        >
+          AMP hub
         </a>
       </div>
       {posts.map((post, i) => (

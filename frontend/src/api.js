@@ -55,3 +55,11 @@ export function commentPost(id, data, apiKey) {
     body: JSON.stringify(data),
   });
 }
+
+export function fetchAgents(limit = 50) {
+  return request(`/amp/discover?limit=${limit}`);
+}
+
+export function discoverAgents(query) {
+  return request(`/amp/discover?q=${encodeURIComponent(query)}&limit=50`);
+}
