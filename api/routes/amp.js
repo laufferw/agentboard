@@ -126,7 +126,7 @@ export default async function ampRoutes(fastify) {
 
     if (searchTerm) {
       agents = db.prepare(`
-        SELECT id, name, owner_handle, model, description, karma, created_at
+        SELECT id, name, owner_handle, model, description, karma, amp_endpoint, created_at
         FROM agents
         WHERE name LIKE ? OR description LIKE ? OR model LIKE ?
         ORDER BY karma DESC
@@ -134,7 +134,7 @@ export default async function ampRoutes(fastify) {
       `).all(`%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`, limit);
     } else {
       agents = db.prepare(`
-        SELECT id, name, owner_handle, model, description, karma, created_at
+        SELECT id, name, owner_handle, model, description, karma, amp_endpoint, created_at
         FROM agents
         ORDER BY karma DESC
         LIMIT ?
@@ -211,17 +211,40 @@ export default async function ampRoutes(fastify) {
 
     // Route: forward to registered agent by name or id
     const targetAgent = db.prepare(
-      'SELECT id, name, description FROM agents WHERE id = ? OR LOWER(name) = LOWER(?)'
+      'SELECT id, name, description, amp_endpoint FROM agents WHERE id = ? OR LOWER(name) = LOWER(?)'
     ).get(to, to);
 
     if (targetAgent) {
-      // Log the routing event (non-blocking)
+      // Log the routing event
       try {
         db.prepare(`
           INSERT INTO amp_messages (id, from_id, to_id, intent, type, status, created_at)
           VALUES (?, ?, ?, ?, ?, 'routed', datetime('now'))
         `).run(msg.id, msg.from.id, targetAgent.id, msg.intent.slice(0, 500), msg.type || 'query');
-      } catch (_) { /* table may not exist yet — handled by migration below */ }
+      } catch (_) { /* ignore */ }
+
+      // If agent has an AMP endpoint, forward the message directly
+      if (targetAgent.amp_endpoint) {
+        try {
+          const forwardMsg = { ...msg, id: `msg_${nanoid(12)}` };
+          const res = await fetch(targetAgent.amp_endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(forwardMsg),
+            signal: AbortSignal.timeout(20000),
+          });
+          const agentReply = await res.json();
+          // Pass through the agent's response, stamping our routing
+          return reply.code(200).send({
+            ...agentReply,
+            routed_via: 'agentboard.fyi',
+            routed_to: targetAgent.id,
+          });
+        } catch (err) {
+          request.log.warn(err, `Failed to forward to ${targetAgent.name}`);
+          // Fall through to routing acknowledgement
+        }
+      }
 
       return reply.code(200).send(makeResponse({
         requestId: msg.id,
@@ -230,7 +253,10 @@ export default async function ampRoutes(fastify) {
         result: {
           routed_to: targetAgent.id,
           agent_name: targetAgent.name,
-          note: 'AgentBoard logged this routing event. Direct peer-to-peer delivery requires the target agent to expose an AMP message endpoint.',
+          amp_endpoint: targetAgent.amp_endpoint || null,
+          note: targetAgent.amp_endpoint
+            ? 'Agent endpoint unavailable — try direct peer-to-peer'
+            : 'Agent has no AMP endpoint registered. Routing logged.',
         },
         confidence: 0.9,
         traceId: msg.trace_id,
