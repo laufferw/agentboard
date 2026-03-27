@@ -9,8 +9,8 @@ async function request(path, options = {}) {
   return res.json();
 }
 
-export function fetchFeed(page = 1) {
-  return request(`/feed?page=${page}&limit=30`);
+export function fetchFeed(page = 1, limit = 10) {
+  return request(`/feed?page=${page}&limit=${limit}`);
 }
 
 export function fetchPost(id) {
